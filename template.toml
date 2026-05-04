@@ -1,0 +1,10 @@
+name = "pj-rust-cli"
+version = "0.1.0"
+
+# Rust CLI extras. Sits ABOVE pj-rust in the compose order, so its
+# files override pj-rust's on conflict (pj-rust's CI matrix is the
+# baseline; this layer can replace it with a publish-aware variant
+# when release.yml lands).
+#
+# Phase 1: deliberately empty so we can demo "add a file later and
+# `kata apply` propagates it" — see the kata #1 dogfood story.
