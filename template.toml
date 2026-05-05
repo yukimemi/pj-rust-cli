@@ -1,5 +1,5 @@
 name = "pj-rust-cli"
-version = "0.1.1"
+version = "0.2.0"
 
 # Rust CLI extras. Sits ABOVE pj-rust in the compose order, so its
 # files override pj-rust's on conflict (pj-rust's CI matrix is the
@@ -8,5 +8,29 @@ version = "0.1.1"
 
 [[file]]
 src = ".editorconfig"
+how = "overwrite"
+when = "once"
+
+# CLI-layer agent guidance — release.yml usage, BIN_NAME override
+# notes, the `package.publish = false` opt-out for internal-only
+# crates. Lives in its own marker block so pj-base's
+# language-agnostic block and pj-rust's Rust-language block stay
+# untouched in the same AGENTS.md.
+[[file]]
+src = "AGENTS.md.rust-cli"
+dst = "AGENTS.md"
+how = "merge-section"
+when = "always"
+marker = { begin = "<!-- kata:agents:rust-cli:begin -->", end = "<!-- kata:agents:rust-cli:end -->" }
+
+# Tag-driven release pipeline (build matrix + GitHub Release +
+# crates.io publish). `.template` suffix keeps GitHub Actions
+# from auto-running the source inside this repo. `when = "once"`
+# (not always) so each consumer PJ can drop the publish job, swap
+# the binary name override, or otherwise adapt the pipeline
+# without `kata apply` reverting the change.
+[[file]]
+src = ".github/workflows/release.yml.template"
+dst = ".github/workflows/release.yml"
 how = "overwrite"
 when = "once"
