@@ -7,13 +7,18 @@ This is a Rust CLI crate, so the release pipeline is publish-aware.
 ci.yml uses).
 
 ```sh
-# Bump version + commit + tag + push.
-# git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z
+# Bump `package.version` in Cargo.toml (run `cargo build` so
+# Cargo.lock follows), then:
+git commit -am "chore: bump version to X.Y.Z"
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main vX.Y.Z
 ```
 
 The workflow then:
-1. Cross-compiles binaries for `x86_64-{linux,windows,macos}` and
-   `aarch64-apple-darwin`.
+1. Cross-compiles binaries for x86_64 Linux / Windows / macOS,
+   plus aarch64 macOS (Apple Silicon) — full triples
+   `x86_64-unknown-linux-gnu`, `x86_64-pc-windows-msvc`,
+   `x86_64-apple-darwin`, `aarch64-apple-darwin`.
 2. Uploads them as a GitHub Release with auto-generated notes.
 3. `cargo publish --locked` to crates.io using the
    `CARGO_REGISTRY_TOKEN` repo secret.
