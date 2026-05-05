@@ -1,0 +1,37 @@
+### Rust CLI release flow
+
+This is a Rust CLI crate, so the release pipeline is publish-aware.
+`yukimemi/pj-rust-cli` ships a tag-driven release workflow in
+`.github/workflows/release.yml` (rendered from
+`release.yml.template` for the same don't-auto-execute reason
+ci.yml uses).
+
+```sh
+# Bump `package.version` in Cargo.toml (run `cargo build` so
+# Cargo.lock follows), then:
+git commit -am "chore: bump version to X.Y.Z"
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main vX.Y.Z
+```
+
+The workflow then:
+1. Cross-compiles binaries for x86_64 Linux / Windows / macOS,
+   plus aarch64 macOS (Apple Silicon) — full triples
+   `x86_64-unknown-linux-gnu`, `x86_64-pc-windows-msvc`,
+   `x86_64-apple-darwin`, `aarch64-apple-darwin`.
+2. Uploads them as a GitHub Release with auto-generated notes.
+3. `cargo publish --locked` to crates.io using the
+   `CARGO_REGISTRY_TOKEN` repo secret.
+
+Set the `CARGO_REGISTRY_TOKEN` secret once per repo (`gh secret
+set CARGO_REGISTRY_TOKEN`) before the first tag push. If the
+crate is internal-only and shouldn't go to crates.io, either drop
+the `publish` job locally (release.yml is `when = "once"` so the
+edit survives subsequent applies) or set `package.publish = false`
+in `Cargo.toml`.
+
+The binary name is derived from the GitHub repo name at runtime
+(`${{ github.event.repository.name }}`), so the workflow is
+identical across yukimemi/* CLIs unless your `[[bin]] name` in
+`Cargo.toml` deliberately differs from the repo name — in that
+case override `BIN_NAME` in the workflow's `env:` block.
