@@ -6,15 +6,14 @@ This is a Rust CLI crate, so the release pipeline is publish-aware.
 `release.yml.template` for the same don't-auto-execute reason
 ci.yml uses).
 
-```sh
-# Bump `package.version` in Cargo.toml (run `cargo build` so
-# Cargo.lock follows), then:
-git commit -am "chore: bump version to X.Y.Z"
-git tag -a vX.Y.Z -m "vX.Y.Z"
-git push origin main vX.Y.Z
-```
+Releases are triggered by a Cargo.toml version bump landing on
+`main`. The bump flow itself (PR with automerge → `auto-tag.yml`
+pushes `vX.Y.Z` → `release.yml` runs) is documented in
+`kata:agents:rust:*` under "Releasing: version bump PR +
+auto-tag" — that block also covers the `KATA_APPLY_TOKEN` and
+`delete_branch_on_merge` setup. What `release.yml` then does for
+a **CLI** crate:
 
-The workflow then:
 1. Cross-compiles binaries for x86_64 Linux / Windows / macOS,
    plus aarch64 macOS (Apple Silicon) — full triples
    `x86_64-unknown-linux-gnu`, `x86_64-pc-windows-msvc`,
@@ -24,7 +23,7 @@ The workflow then:
    `CARGO_REGISTRY_TOKEN` repo secret.
 
 Set the `CARGO_REGISTRY_TOKEN` secret once per repo (`gh secret
-set CARGO_REGISTRY_TOKEN`) before the first tag push. If the
+set CARGO_REGISTRY_TOKEN`) before the first release. If the
 crate is internal-only and shouldn't go to crates.io, either drop
 the `publish` job locally (release.yml is `when = "once"` so the
 edit survives subsequent applies) or set `package.publish = false`
