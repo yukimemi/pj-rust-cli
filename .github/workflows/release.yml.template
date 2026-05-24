@@ -11,7 +11,7 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   # Cargo binary name derived from the GitHub repo so this template
-  # works unchanged for any yukimemi/* CLI without per-PJ patching.
+  # works unchanged for any CLI using these templates without per-PJ patching.
   # If your `[[bin]] name` in Cargo.toml differs from the repo name,
   # override this on the spot.
   BIN_NAME: ${{ github.event.repository.name }}

@@ -31,6 +31,6 @@ in `Cargo.toml`.
 
 The binary name is derived from the GitHub repo name at runtime
 (`${{ github.event.repository.name }}`), so the workflow is
-identical across yukimemi/* CLIs unless your `[[bin]] name` in
+identical across CLIs using these templates unless your `[[bin]] name` in
 `Cargo.toml` deliberately differs from the repo name — in that
 case override `BIN_NAME` in the workflow's `env:` block.
