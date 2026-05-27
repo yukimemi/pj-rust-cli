@@ -39,6 +39,15 @@ jobs:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target ${{ matrix.target }}
+      # Run the `smoke` example on the same runner that produced the
+      # binary. The example's default body is a no-op (see
+      # `examples/smoke.rs` in the consumer crate); each crate is
+      # expected to override it with a real-world startup check
+      # (HTTPS handshake, I/O probe, etc.) so this step blocks a
+      # release before bad binaries reach users — `cargo test` runs
+      # only library code and missed shoka v0.10.0's rustls panic.
+      - name: smoke
+        run: cargo run --release --target ${{ matrix.target }} --example smoke
       - name: package (unix)
         if: runner.os != 'Windows'
         run: |

@@ -1,5 +1,5 @@
 name = "pj-rust-cli"
-version = "0.2.0"
+version = "0.3.0"
 
 # Rust CLI extras. Sits ABOVE pj-rust in the compose order, so its
 # files override pj-rust's on conflict (pj-rust's CI matrix is the
@@ -32,5 +32,20 @@ marker = { begin = "<!-- kata:agents:rust-cli:begin -->", end = "<!-- kata:agent
 [[file]]
 src = ".github/workflows/release.yml.template"
 dst = ".github/workflows/release.yml"
+how = "overwrite"
+when = "once"
+
+# Release-time smoke target. The default `main` is a no-op so the
+# template can drop into any consumer without breaking its existing
+# release pipeline; each crate is expected to override this file
+# with a real startup probe (HTTPS handshake, I/O check) so future
+# regressions like shoka v0.10.0's rustls panic surface in CI
+# before they reach published binaries. `.template` suffix avoids
+# accidentally compiling this file inside the preset repo itself
+# (which has no Cargo.toml). See examples/smoke.rs.template for the
+# rationale and per-crate override guidance.
+[[file]]
+src = "examples/smoke.rs.template"
+dst = "examples/smoke.rs"
 how = "overwrite"
 when = "once"
