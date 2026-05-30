@@ -1,5 +1,5 @@
 name = "pj-rust-cli"
-version = "0.3.0"
+version = "0.4.0"
 
 # Rust CLI extras. Sits ABOVE pj-rust in the compose order, so its
 # files override pj-rust's on conflict (pj-rust's CI matrix is the
@@ -25,15 +25,14 @@ marker = { begin = "<!-- kata:agents:rust-cli:begin -->", end = "<!-- kata:agent
 
 # Tag-driven release pipeline (build matrix + GitHub Release +
 # crates.io publish). `.template` suffix keeps GitHub Actions
-# from auto-running the source inside this repo. `when = "once"`
-# (not always) so each consumer PJ can drop the publish job, swap
-# the binary name override, or otherwise adapt the pipeline
-# without `kata apply` reverting the change.
+# from auto-running the source inside this repo. `when = "always"`
+# so upstream fixes (e.g. toolchain or runner pinning) propagate
+# automatically via `kata apply` without manual per-repo edits.
 [[file]]
 src = ".github/workflows/release.yml.template"
 dst = ".github/workflows/release.yml"
 how = "overwrite"
-when = "once"
+when = "always"
 
 # Release-time smoke target. The default `main` is a no-op so the
 # template can drop into any consumer without breaking its existing
