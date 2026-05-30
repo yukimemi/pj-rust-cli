@@ -1,5 +1,5 @@
 name = "pj-rust-cli"
-version = "0.4.0"
+version = "0.4.1"
 
 # Rust CLI extras. Sits ABOVE pj-rust in the compose order, so its
 # files override pj-rust's on conflict (pj-rust's CI matrix is the

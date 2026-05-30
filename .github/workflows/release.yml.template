@@ -59,13 +59,6 @@ jobs:
           mkdir -p dist
           pkg=target/${{ matrix.target }}/release
           tar czf "dist/${BIN_NAME}-${{ matrix.target }}.tar.gz" -C "$pkg" "${BIN_NAME}"
-          # Backward-compat alias: existing gnu self-update clients request
-          # *-x86_64-unknown-linux-gnu.tar.gz; ship the same static musl
-          # binary under that name so in-place self-update keeps working.
-          if [[ "${{ matrix.target }}" == "x86_64-unknown-linux-musl" ]]; then
-            cp "dist/${BIN_NAME}-${{ matrix.target }}.tar.gz" \
-               "dist/${BIN_NAME}-x86_64-unknown-linux-gnu.tar.gz"
-          fi
       - name: package (windows)
         if: runner.os == 'Windows'
         shell: pwsh
