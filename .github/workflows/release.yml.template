@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
+          - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
           - target: x86_64-pc-windows-msvc
             os: windows-latest
@@ -38,6 +38,9 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
+      - name: install musl toolchain
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get install -y musl-tools
       - run: cargo build --release --target ${{ matrix.target }}
       # Run the `smoke` example on the same runner that produced the
       # binary. The example's default body is a no-op (see
@@ -47,6 +50,8 @@ jobs:
       # release before bad binaries reach users — `cargo test` runs
       # only library code and missed shoka v0.10.0's rustls panic.
       - name: smoke
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cargo run --release --target ${{ matrix.target }} --example smoke
       - name: package (unix)
         if: runner.os != 'Windows'
@@ -54,6 +59,13 @@ jobs:
           mkdir -p dist
           pkg=target/${{ matrix.target }}/release
           tar czf "dist/${BIN_NAME}-${{ matrix.target }}.tar.gz" -C "$pkg" "${BIN_NAME}"
+          # Backward-compat alias: existing gnu self-update clients request
+          # *-x86_64-unknown-linux-gnu.tar.gz; ship the same static musl
+          # binary under that name so in-place self-update keeps working.
+          if [[ "${{ matrix.target }}" == "x86_64-unknown-linux-musl" ]]; then
+            cp "dist/${BIN_NAME}-${{ matrix.target }}.tar.gz" \
+               "dist/${BIN_NAME}-x86_64-unknown-linux-gnu.tar.gz"
+          fi
       - name: package (windows)
         if: runner.os == 'Windows'
         shell: pwsh
