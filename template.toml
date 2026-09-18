@@ -1,15 +1,38 @@
 name = "pj-rust-cli"
-version = "0.4.1"
+version = "0.5.0"
 
 # Rust CLI extras. Sits ABOVE pj-rust in the compose order, so its
 # files override pj-rust's on conflict (pj-rust's CI matrix is the
 # baseline; this layer can replace it with a publish-aware variant
 # when release.yml lands).
 
-[[file]]
-src = ".editorconfig"
-how = "overwrite"
-when = "once"
+# NO `.editorconfig` entry, deliberately. This layer used to ship one
+# with `how = "overwrite"`, `when = "once"`, and that file still carried
+# `indent_style` / `indent_size` / `trim_trailing_whitespace` /
+# `insert_final_newline` — precisely the rules pj-base and pj-rust
+# removed on purpose (their blocks carry the measurement: 323
+# `editorconfig-checker` errors on `yukimemi/nagi` against a tree where
+# `cargo fmt --check` and clippy were both clean; 248 of them from the
+# Rust indent rule alone).
+#
+# Because this layer sits ABOVE pj-rust in the compose order and used
+# `overwrite`, a freshly `kata init`-ed rust-cli project received the
+# stale file INSTEAD of pj-base's encoding-only one — and then
+# `cargo make check` failed on kata's OWN rendered `AGENTS.md`, whose
+# prose continuation lines are indented 3 columns:
+#
+#   AGENTS.md: 395-399,402: Wrong amount of left-padding spaces(want multiple of 2)
+#
+# `when = "once"` meant no later `kata apply` could correct it.
+# Found while bootstrapping `yukimemi/shikigami` (2026-09-19).
+#
+# `.editorconfig` belongs to pj-base (merge-section, encoding and line
+# endings only) plus pj-rust's comment-only Rust section. This layer has
+# nothing to add: a CLI crate's formatting is owned by rustfmt, which CI
+# already enforces. Consumers initialized before this removal keep their
+# adopted copy — the `once` gate keys on the destination path, so kata
+# cannot fix it for them; replace it by hand with pj-base's rendering.
+# Editing it in a consumer is safe precisely because it is `once_applied`.
 
 # CLI-layer agent guidance — release.yml usage, BIN_NAME override
 # notes, the `package.publish = false` opt-out for internal-only
