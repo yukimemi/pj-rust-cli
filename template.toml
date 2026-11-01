@@ -51,6 +51,9 @@ marker = { begin = "<!-- kata:agents:rust-cli:begin -->", end = "<!-- kata:agent
 # from auto-running the source inside this repo. `when = "always"`
 # so upstream fixes (e.g. toolchain or runner pinning) propagate
 # automatically via `kata apply` without manual per-repo edits.
+# Consumers keep optional sign/verify-dist policy in
+# scripts/ci/release-post-build.sh; deploy/macos/signing-cert.sha1
+# requires that hook. See AGENTS.md.rust-cli for the contract.
 [[file]]
 src = ".github/workflows/release.yml.template"
 dst = ".github/workflows/release.yml"

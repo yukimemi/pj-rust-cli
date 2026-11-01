@@ -52,6 +52,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cargo run --release --target ${{ matrix.target }} --example smoke
+      - name: Require post-build hook when a signing pin exists
+        if: ${{ hashFiles('deploy/macos/signing-cert.sha1') != '' && hashFiles('scripts/ci/release-post-build.sh') == '' }}
+        shell: bash
+        run: |
+          echo "::error::Signing pin exists but scripts/ci/release-post-build.sh is missing"
+          exit 1
       - name: Sign binaries (post-build hook)
         if: ${{ hashFiles('scripts/ci/release-post-build.sh') != '' }}
         shell: bash
